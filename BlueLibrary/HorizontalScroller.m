@@ -24,7 +24,7 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        scroller = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.width)];
+        scroller = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
         scroller.delegate = self;
         [self addSubview:scroller];
         UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(scrollerTapped:)];
@@ -41,7 +41,7 @@
         UIView *view = scroller.subviews[index];
         if (CGRectContainsPoint(view.frame, location)) {
             [self.delegate horizontalScroller:self clickedViewAtIndex:index];
-            [scroller setContentOffset:CGPointMake(view.frame.origin.x - self.frame.size.width/2, view.frame.size.width/2) animated:YES];
+            [scroller setContentOffset:CGPointMake(view.frame.origin.x - self.frame.size.width/2 + view.frame.size.width/2, 0) animated:YES];
             break;
         }
     }

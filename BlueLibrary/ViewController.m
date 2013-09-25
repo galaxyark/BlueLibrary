@@ -35,14 +35,14 @@
     
     //3
     //the uitableview that presents the album data
-    dataTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 120, self.view.frame.size.width, self.view.frame.size.height - 120) style:UITableViewStyleGrouped];
+    dataTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 140, self.view.frame.size.width, self.view.frame.size.height - 140) style:UITableViewStyleGrouped];
     
     dataTable.delegate = self;
     dataTable.dataSource = self;
     dataTable.backgroundView = nil;
     [self.view addSubview:dataTable];
     
-    scroller = [[HorizontalScroller alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 120)];
+    scroller = [[HorizontalScroller alloc] initWithFrame:CGRectMake(0, 20, self.view.frame.size.width, 120)];
     scroller.backgroundColor = [UIColor colorWithRed:0.24f green:0.35f blue:0.49f alpha:1];
     scroller.delegate = self;
     [self.view addSubview:scroller];
