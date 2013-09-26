@@ -142,6 +142,7 @@
     // Since it's only one piece of information we can use NSUserDefaults
     
     [[NSUserDefaults standardUserDefaults] setInteger:currentAlbumIndex forKey:@"currentAlbumIndex"];
+    [[LibraryAPI sharedInstance] saveAlbums];
 }
 
 - (void)loadPreviousState
