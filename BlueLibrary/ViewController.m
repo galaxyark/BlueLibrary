@@ -18,6 +18,8 @@
     NSDictionary *currentAlbumData;
     int currentAlbumIndex;
     HorizontalScroller *scroller;
+    UIToolbar *toolbar;
+    NSMutableArray *undoStack;
 }
 
 @end
@@ -29,6 +31,17 @@
 	//1
     self.view.backgroundColor = [UIColor colorWithRed:0.76f green:0.81f blue:0.87f alpha:1];
     currentAlbumIndex = 0;
+    
+    toolbar = [[UIToolbar alloc] init];
+    UIBarButtonItem *undoItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemUndo target:self action:@selector(undoAction)];
+    undoItem.enabled = NO;
+    UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
+    UIBarButtonItem *delete = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(deleteAlbum)];
+    [toolbar setItems:@[undoItem, space, delete]];
+    [self.view addSubview:toolbar];
+    undoStack = [[NSMutableArray alloc] init];
+    
+    
     
     //2
     allAlbums = [[LibraryAPI sharedInstance] getAlbums];
@@ -159,6 +172,58 @@
 - (NSInteger)initialViewIndexForHorizontalScroller:(HorizontalScroller *)scroller
 {
     return currentAlbumIndex;
+}
+
+#pragma mark - Command Pattern
+- (void)viewWillLayoutSubviews
+{
+    toolbar.frame = CGRectMake(0, self.view.frame.size.height - 44, self.view.frame.size.width, 44);
+    dataTable.frame = CGRectMake(0, 130, self.view.frame.size.width, self.view.frame.size.height - 200);
+}
+
+- (void)addAlbum:(Album *)album atIndex:(NSInteger)index
+{
+    [[LibraryAPI sharedInstance] addAlbum:album atIndex:index];
+    currentAlbumIndex = index;
+    [self reloadScroller];
+}
+
+- (void)deleteAlbum
+{
+    //1
+    Album *deletedAlbum = allAlbums[currentAlbumIndex];
+    
+    //2
+    NSMethodSignature *sig = [self methodSignatureForSelector:@selector(addAlbum:atIndex:)];
+    NSInvocation *undoAction = [NSInvocation invocationWithMethodSignature:sig];
+    [undoAction setTarget:self];
+    [undoAction setSelector:@selector(addAlbum:atIndex:)];
+    [undoAction setArgument:&deletedAlbum atIndex:2];
+    [undoAction setArgument:&currentAlbumIndex atIndex:3];
+    [undoAction retainArguments];
+    
+    //3
+    [undoStack addObject:undoAction];
+    
+    //4
+    [[LibraryAPI sharedInstance] deleteAlbumAtIndex:currentAlbumIndex];
+    [self reloadScroller];
+    
+    //5
+    [toolbar.items[0] setEnabled:YES];
+}
+
+- (void)undoAction
+{
+    if (undoStack.count > 0) {
+        NSInvocation *undoAction = [undoStack lastObject];
+        [undoStack removeLastObject];
+        [undoAction invoke];
+    }
+    
+    if (undoStack.count == 0) {
+        [toolbar.items[0] setEnabled:NO];
+    }
 }
 
 @end
